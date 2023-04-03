@@ -1,0 +1,916 @@
+{
+    "openapi": "3.0.2",
+    "info": {
+        "version": "1.0.0",
+        "title": "Task management",
+        "description": "An API to manage my personal tasks.",
+        "contact": {
+            "name": "Saul Dominguez",
+            "url": "https://sauldom.dev/",
+            "email": "saulydominguez@gmail.com"
+        }
+    },
+    "paths": {
+        "/auth/sign-up": {
+            "post": {
+                "description": "Sign up a new user",
+                "tags": ["Auth"],
+                "requestBody": {
+                    "description": "The request body should contain an email and password for the new user",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SignUpRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User was signed up successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "default": "ok"
+                                        },
+                                        "data": {
+                                            "type": "string",
+                                            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/categories/": {
+            "get": {
+                "description": "List all categories",
+                "tags": ["Categories"],
+                "responses": {
+                    "200": {
+                        "description": "Return all categories",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "default": "ok"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Category"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "description": "Log in an existing user",
+                "tags": ["Auth"],
+                "requestBody": {
+                    "description": "The request body should contain an email and password for the user",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User was logged in successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "default": "ok"
+                                        },
+                                        "data": {
+                                            "type": "string",
+                                            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tasks": {
+            "get": {
+                "summary": "List of tasks",
+                "tags": ["Tasks"],
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Page number",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "default": "ok"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/PaginatedTasks"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a new task",
+                "tags": ["Tasks"],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateTaskBody"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "default": "ok"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Task"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Category provided not found"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/user/": {
+            "get": {
+                "summary": "Get current user information",
+                "tags": ["User"],
+                "responses": {
+                    "201": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "default": "ok"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/User"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update current user information",
+                "tags": ["User"],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateUserBody"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "default": "ok"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/User"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/tasks/{taskId}/": {
+            "get": {
+                "summary": "Get a task by id",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "taskId",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": ["Tasks"],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "default": "ok"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Task"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Task not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Task not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete a task given its id",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "taskId",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "tags": ["Tasks"],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "default": "ok"
+                                        },
+                                        "data": {
+                                            "type": "boolean",
+                                            "default": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Task not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Task not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update a task given its id",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "taskId",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": true
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateTaskBody"
+                            }
+                        }
+                    }
+                },
+                "tags": ["Tasks"],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "default": "ok"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Task"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "404": {
+                        "description": "Task not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Task not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tasks/today": {
+            "get": {
+                "summary": "Receive tasks assigned for today",
+                "tags": ["Tasks"],
+                "responses": {
+                    "200": {
+                        "description": "Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "default": "ok"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Task"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/tasks/{taskId}/reset": {
+            "post": {
+                "summary": "Reset task time",
+                "tags": ["Tasks"],
+                "description": "Resets the time for a task with the specified ID.",
+                "parameters": [
+                    {
+                        "name": "taskId",
+                        "in": "path",
+                        "description": "ID of the task to reset",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Task time reset successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "default": "ok"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Task"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Task not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Task not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/tasks/stats": {
+            "get": {
+                "summary": "Get task stats",
+                "tags": ["Tasks"],
+                "responses": {
+                    "200": {
+                        "description": "Task stats successfully retrieved",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "default": "ok"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/TaskStats"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        },
+        "/tasks/{taskId}/registries": {
+            "post": {
+                "summary": "Add task registries",
+                "tags": ["Tasks"],
+                "description": "Add registries for a task with the specified ID.",
+                "parameters": [
+                    {
+                        "name": "taskId",
+                        "in": "path",
+                        "description": "ID of the task to add registries to.",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "from": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "to": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "seconds": {
+                                            "type": "integer",
+                                            "format": "int32"
+                                        }
+                                    },
+                                    "required": ["from", "to", "seconds"]
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Task registries created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "default": "ok"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Task"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Task not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Task not found"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                }
+            }
+        }
+    },
+    "security": [
+        {
+            "apiKey": []
+        }
+    ],
+    "components": {
+        "securitySchemes": {
+            "apiKey": {
+                "type": "apiKey",
+                "name": "Authorization",
+                "in": "header"
+            }
+        },
+        "schemas": {
+            "CreateTaskBody": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "estimatedDuration": {
+                        "type": "integer"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "categoryId": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                },
+                "required": ["title", "estimatedDuration", "date", "categoryId"]
+            },
+            "UpdateTaskBody": {
+                "type": "object",
+                "properties": {
+                    "completed": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "TaskStats": {
+                "type": "object",
+                "properties": {
+                    "weeklyMinutes": {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        }
+                    }
+                },
+                "required": ["weeklyMinutes"]
+            },
+            "PaginatedTasks": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Task"
+                        },
+                        "description": "Array of task items"
+                    },
+                    "count": {
+                        "type": "integer",
+                        "description": "Total count of tasks"
+                    },
+                    "nextPage": {
+                        "type": "integer",
+                        "description": "Next page number or null"
+                    },
+                    "prevPage": {
+                        "type": "integer",
+                        "description": "Previous page number or null"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "description": "Total number of pages"
+                    }
+                },
+                "required": ["items", "count", "totalPages"]
+            },
+            "LoginRequest": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "password": {
+                        "type": "string"
+                    }
+                },
+                "required": ["email", "password"]
+            },
+            "SignUpRequest": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "password": {
+                        "type": "string"
+                    }
+                },
+                "required": ["email", "password"]
+            },
+            "Category": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "color": {
+                        "type": "string"
+                    },
+                    "image": {
+                        "type": "string"
+                    }
+                },
+                "required": ["id", "title", "color", "image"]
+            },
+            "UpdateUserBody": {
+                "type": "object",
+                "properties": {
+                    "firstName": {
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "type": "string"
+                    },
+                    "username": {
+                        "type": "string"
+                    }
+                }
+            },
+            "User": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "firstName": {
+                        "type": "string"
+                    },
+                    "lastName": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "emailConfirmed": {
+                        "type": "boolean"
+                    },
+                    "username": {
+                        "type": "string"
+                    },
+                    "onboarded": {
+                        "type": "boolean"
+                    }
+                },
+                "required": ["id", "email", "emailConfirmed", "onboarded"]
+            },
+            "Task": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "title": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "estimatedDuration": {
+                        "type": "integer"
+                    },
+                    "seconds": {
+                        "type": "integer"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "completed": {
+                        "type": "boolean"
+                    },
+                    "category": {
+                        "$ref": "#/components/schemas/Category"
+                    }
+                },
+                "required": [
+                    "id",
+                    "title",
+                    "estimatedDuration",
+                    "date",
+                    "seconds",
+                    "category"
+                ]
+            },
+            "ZodErrors": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/components/schemas/ZodError"
+                }
+            },
+            "ZodError": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "default": "Body"
+                    },
+                    "errors": {
+                        "type": "object",
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "default": "ZodError"
+                            },
+                            "issues": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "string"
+                                        },
+                                        "expected": {
+                                            "type": "string"
+                                        },
+                                        "received": {
+                                            "type": "string"
+                                        },
+                                        "path": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

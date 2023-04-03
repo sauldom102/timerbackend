@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @unique @default(cuid())
+  email          String   @unique
+  password       String
+  firstName      String?
+  lastName       String?
+  username       String?  @unique
+  emailConfirmed Boolean?
+  onboarded      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  tasks Task[]
+}
+
+model Category {
+  id        String   @id @unique @default(cuid())
+  title     String   @unique
+  color     String   @unique
+  image     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tasks Task[]
+}
+
+model Task {
+  id                String    @id @unique @default(cuid())
+  title             String
+  description       String?
+  estimatedDuration Int
+  date              DateTime
+  seconds           Int       @default(0) // sum of seconds from all task registries
+  completed         Boolean   @default(false)
+  completedAt       DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId String
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  registries TaskRegistry[]
+}
+
+model TaskRegistry {
+  id      String   @id @unique @default(cuid())
+  from    DateTime
+  to      DateTime
+  seconds Int
+
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId String
+}
